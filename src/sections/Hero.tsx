@@ -26,39 +26,39 @@ export const Hero: React.FC = () => {
         +
       </div>
 
-      {/* Layer 0: Independent Atmosphere / Aura (Zero baked graphics) */}
+      {/* Layer 0: Independent Atmosphere / Aura Circle matching the reference */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[45%] w-[min(65vw,640px)] aspect-square rounded-full bg-[#EAEAEA]/80 blur-xs z-0"
+        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[48%] w-[320px] sm:w-[480px] md:w-[600px] lg:w-[660px] aspect-square rounded-full bg-[#EAEAEA]/80 z-0 select-none"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative my-auto">
         {/* Layer 10 & 20: Display Typography & Transparent Portrait Composition */}
-        <div className="relative w-full flex items-center justify-center select-none pt-4 sm:pt-8 min-h-[300px] sm:min-h-[420px] md:min-h-[500px]">
-          {/* Layer 10: Live HTML Typography — Single Line Baseline on Desktop */}
+        <div className="relative w-full flex items-center justify-center select-none pt-4 sm:pt-6 min-h-[340px] sm:min-h-[460px] md:min-h-[540px]">
+          {/* Layer 10: Live HTML Condensed Typography — Single Line Baseline on Desktop */}
           <motion.div
             variants={heroNameVariant}
             initial="hidden"
             animate="visible"
-            className="relative z-10 w-full flex flex-col sm:flex-row flex-nowrap items-center sm:items-baseline justify-center whitespace-nowrap gap-x-[2.5vw] leading-none text-center"
+            className="relative z-10 w-full flex flex-col sm:flex-row flex-nowrap items-center sm:items-baseline justify-center whitespace-nowrap gap-x-[3.5vw] leading-none text-center select-none"
           >
             {/* Outlined SAI */}
-            <h1 className="name-outline text-[16vw] sm:text-[13vw] md:text-[12vw] lg:text-[11.5vw] font-black uppercase tracking-tighter leading-[0.88] select-none">
+            <h1 className="font-display name-outline text-[22vw] sm:text-[18vw] md:text-[16vw] lg:text-[15.5vw] uppercase tracking-normal leading-[0.84] select-none">
               SAI
             </h1>
 
             {/* Solid GOUTHAM */}
-            <span className="text-[#0A0909] text-[16vw] sm:text-[13vw] md:text-[12vw] lg:text-[11.5vw] font-black uppercase tracking-tighter leading-[0.88] select-none">
+            <span className="font-display text-[#0A0909] text-[22vw] sm:text-[18vw] md:text-[16vw] lg:text-[15.5vw] uppercase tracking-normal leading-[0.84] select-none">
               GOUTHAM
             </span>
           </motion.div>
 
-          {/* Layer 20: Pristine Transparent Portrait Cutout (No baked text, no rectangle) */}
+          {/* Layer 20: Authentic Transparent Portrait Cutout */}
           <motion.div
             variants={heroPortraitVariant}
             initial="hidden"
             animate="visible"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[38%] w-[280px] sm:w-[380px] md:w-[460px] lg:w-[500px] pointer-events-none z-20 flex items-center justify-center"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[38%] w-[300px] sm:w-[420px] md:w-[520px] lg:w-[580px] pointer-events-none z-20 flex items-center justify-center"
           >
             <img
               src={portraitCutout}
