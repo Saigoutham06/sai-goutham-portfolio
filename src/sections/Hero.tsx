@@ -26,44 +26,38 @@ export const Hero: React.FC = () => {
         +
       </div>
 
-      {/* Layer 0: Independent Atmosphere / Aura Circle matching the reference */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[48%] w-[320px] sm:w-[480px] md:w-[600px] lg:w-[660px] aspect-square rounded-full bg-[#EAEAEA]/80 z-0 select-none"
-      />
-
+      {/* Layer 10 & 20: Display Typography & Responsive Circular Portrait Stage */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative my-auto">
-        {/* Layer 10 & 20: Display Typography & Transparent Portrait Composition */}
         <div className="relative w-full flex items-center justify-center select-none pt-4 sm:pt-6 min-h-[340px] sm:min-h-[460px] md:min-h-[540px]">
-          {/* Layer 10: Live HTML Condensed Typography — Single Line Baseline on Desktop */}
+          {/* Layer 10: Live HTML Condensed Typography — Guaranteed Single Line Baseline on Desktop */}
           <motion.div
             variants={heroNameVariant}
             initial="hidden"
             animate="visible"
-            className="relative z-10 w-full flex flex-col sm:flex-row flex-nowrap items-center sm:items-baseline justify-center whitespace-nowrap gap-x-[3.5vw] leading-none text-center select-none"
+            className="relative z-10 w-full flex flex-col sm:flex-row flex-nowrap items-center sm:items-baseline justify-center whitespace-nowrap gap-x-[3vw] leading-none text-center select-none"
           >
             {/* Outlined SAI */}
-            <h1 className="font-display name-outline text-[22vw] sm:text-[18vw] md:text-[16vw] lg:text-[15.5vw] uppercase tracking-normal leading-[0.84] select-none">
+            <h1 className="font-display name-outline text-[20vw] sm:text-[clamp(4rem,11.5vw,12.5rem)] uppercase tracking-normal leading-[0.84] select-none">
               SAI
             </h1>
 
             {/* Solid GOUTHAM */}
-            <span className="font-display text-[#0A0909] text-[22vw] sm:text-[18vw] md:text-[16vw] lg:text-[15.5vw] uppercase tracking-normal leading-[0.84] select-none">
+            <span className="font-display text-[#0A0909] text-[20vw] sm:text-[clamp(4rem,11.5vw,12.5rem)] uppercase tracking-normal leading-[0.84] select-none">
               GOUTHAM
             </span>
           </motion.div>
 
-          {/* Layer 20: Authentic Transparent Portrait Cutout */}
+          {/* Layer 20: Responsive Circular Portrait Frame & Stage (Entire portrait contained in circle) */}
           <motion.div
             variants={heroPortraitVariant}
             initial="hidden"
             animate="visible"
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[38%] w-[300px] sm:w-[420px] md:w-[520px] lg:w-[580px] pointer-events-none z-20 flex items-center justify-center"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] w-[min(80vw,310px)] sm:w-[410px] md:w-[470px] lg:w-[530px] xl:w-[570px] aspect-square rounded-full bg-[#ECECEC] overflow-hidden pointer-events-none z-20 flex items-center justify-center shadow-xs"
           >
             <img
               src={portraitCutout}
               alt="Sai Goutham"
-              className="w-full h-auto object-contain filter contrast-105 drop-shadow-md select-none"
+              className="w-full h-full object-cover select-none pointer-events-none"
               loading="eager"
             />
           </motion.div>
