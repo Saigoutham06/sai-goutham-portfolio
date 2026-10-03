@@ -1,5 +1,5 @@
 import React from 'react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { ArrowUpRight } from 'lucide-react'
 import type { Project } from '../data/projects'
 import { fadeUp } from '../lib/motion'
@@ -9,13 +9,17 @@ interface ProjectCardProps {
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
+  const shouldReduceMotion = useReducedMotion()
+
   return (
     <motion.article
       variants={fadeUp}
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: '-40px' }}
-      className="group flex flex-col rounded-2xl border border-[#E8E8E8] bg-white p-4 sm:p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      whileHover={shouldReduceMotion ? undefined : { y: -4 }}
+      transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+      className="group flex flex-col rounded-2xl border border-[#E8E8E8] bg-white p-4 sm:p-6 transition-shadow duration-300 hover:shadow-lg"
     >
       {/* Media placeholder / preview */}
       <div className="relative aspect-[16/10] w-full overflow-hidden rounded-xl bg-[#F4F4F4]">
@@ -24,7 +28,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
             src={project.coverImage}
             alt={project.title}
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-102"
+            className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-103"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center p-6 text-center text-[#707070]">
@@ -90,7 +94,7 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project }) => {
               className="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-wider text-[#0A0909] group-hover:underline"
             >
               <span>View Project</span>
-              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
             </a>
           )}
         </div>

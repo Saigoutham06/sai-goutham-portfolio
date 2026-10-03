@@ -23,12 +23,12 @@ export const Footer: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-6">
-          <span>React • TypeScript • Tailwind • Motion</span>
+          <span className="hidden md:inline">React • TypeScript • Tailwind • Motion</span>
           <button
             type="button"
             onClick={scrollToTop}
             aria-label="Back to top"
-            className="w-8 h-8 rounded-full border border-[#E8E8E8] bg-white flex items-center justify-center text-[#0A0909] hover:border-[#0A0909] transition-all cursor-pointer"
+            className="w-8 h-8 rounded-full border border-[#E8E8E8] bg-white flex items-center justify-center text-[#0A0909] hover:border-[#0A0909] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer shadow-xs"
           >
             <ArrowUp className="w-3.5 h-3.5" />
           </button>

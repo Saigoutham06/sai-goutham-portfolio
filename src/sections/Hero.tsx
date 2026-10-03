@@ -1,31 +1,65 @@
-import React from 'react'
-import { motion } from 'motion/react'
+import React, { useRef, useCallback } from 'react'
+import {
+  motion,
+  useMotionValue,
+  useSpring,
+  useTransform,
+  useReducedMotion,
+} from 'motion/react'
 import { profileData } from '../data/profile'
 import { Button } from '../components/Button'
 import { SocialLinks } from '../components/SocialLinks'
 import portraitAsset from '../assets/portrait/sai-goutham-hero.png'
-import { heroPortraitVariant, heroNameVariant, fadeUp } from '../lib/motion'
+import {
+  heroPortraitVariant,
+  heroNameVariant,
+  heroCircleVariant,
+  fadeUp,
+} from '../lib/motion'
 
 /**
  * CircleStage (Layer 0)
  * Visual stage/atmosphere sitting strictly behind typography and portrait.
- * Subtle, GPU-accelerated atmospheric breathing animation.
+ * Subtle, GPU-accelerated atmospheric breathing animation + subtle parallax.
  */
-const CircleStage: React.FC<{ className?: string }> = ({ className = '' }) => (
+interface CircleStageProps {
+  className?: string
+  x?: any
+  y?: any
+  shouldReduceMotion?: boolean | null
+}
+
+const CircleStage: React.FC<CircleStageProps> = ({
+  className = '',
+  x,
+  y,
+  shouldReduceMotion,
+}) => (
   <motion.div
     aria-hidden="true"
-    initial={{ scale: 0.94, opacity: 0 }}
-    animate={{
-      scale: [1, 1.025, 1],
-      opacity: [0.85, 0.95, 0.85],
-    }}
-    transition={{
-      scale: { duration: 12, repeat: Infinity, ease: 'easeInOut' },
-      opacity: { duration: 12, repeat: Infinity, ease: 'easeInOut' },
-      default: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
-    }}
+    variants={heroCircleVariant}
+    initial="hidden"
+    animate="visible"
+    style={{ x, y }}
     className={`aspect-square rounded-full bg-[#ECECEC] pointer-events-none z-0 select-none ${className}`}
-  />
+  >
+    <motion.div
+      animate={
+        shouldReduceMotion
+          ? undefined
+          : {
+              scale: [1, 1.025, 1],
+              opacity: [0.85, 0.95, 0.85],
+            }
+      }
+      transition={{
+        duration: 12,
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
+      className="w-full h-full rounded-full bg-[#ECECEC]"
+    />
+  </motion.div>
 )
 
 /**
@@ -33,16 +67,40 @@ const CircleStage: React.FC<{ className?: string }> = ({ className = '' }) => (
  * Sits in front of the circle (Layer 0) and live typography (Layer 10).
  * Structured as an isolated renderer for easy future 3D model substitution.
  */
-const PortraitRenderer: React.FC<{ className?: string }> = ({ className = '' }) => (
+interface PortraitRendererProps {
+  className?: string
+  x?: any
+  y?: any
+  shouldReduceMotion?: boolean | null
+}
+
+const PortraitRenderer: React.FC<PortraitRendererProps> = ({
+  className = '',
+  x,
+  y,
+  shouldReduceMotion,
+}) => (
   <motion.div
     variants={heroPortraitVariant}
     initial="hidden"
     animate="visible"
+    style={{ x, y }}
     className={`aspect-square pointer-events-none z-20 flex items-center justify-center select-none ${className}`}
   >
     <motion.div
-      animate={{ y: [0, -4, 0] }}
-      transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+      animate={
+        shouldReduceMotion
+          ? undefined
+          : {
+              y: [0, -4, 0],
+              scale: [1, 1.008, 1],
+            }
+      }
+      transition={{
+        duration: 6,
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
       className="w-full h-full flex items-center justify-center"
     >
       <img
@@ -56,15 +114,69 @@ const PortraitRenderer: React.FC<{ className?: string }> = ({ className = '' }) 
 )
 
 export const Hero: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const shouldReduceMotion = useReducedMotion()
+
+  // Normalized motion values for GPU-accelerated pointer parallax (Desktop only)
+  // Operates without causing any React state updates or component re-renders
+  const rawMouseX = useMotionValue(0)
+  const rawMouseY = useMotionValue(0)
+
+  // Spring physics for smooth cursor tracking and gentle recentering
+  const springConfig = { stiffness: 120, damping: 22, mass: 0.8 }
+  const springX = useSpring(rawMouseX, springConfig)
+  const springY = useSpring(rawMouseY, springConfig)
+
+  // Calibrated depth response for each physical layer:
+  // Layer 0 (Circle): shifts 1 to 2px
+  // Layer 10 (Typography): shifts 2 to 3.5px
+  // Layer 20 (Portrait): shifts 3 to 6px
+  const circleX = useTransform(springX, [-1, 1], [-2, 2])
+  const circleY = useTransform(springY, [-1, 1], [-2, 2])
+
+  const typoX = useTransform(springX, [-1, 1], [-3, 3])
+  const typoY = useTransform(springY, [-1, 1], [-3, 3])
+
+  const portraitX = useTransform(springX, [-1, 1], [-5, 5])
+  const portraitY = useTransform(springY, [-1, 1], [-5, 5])
+
+  const handlePointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      // Only enable parallax on desktop fine pointer devices
+      if (shouldReduceMotion || e.pointerType !== 'mouse') return
+
+      const rect = containerRef.current?.getBoundingClientRect()
+      if (!rect) return
+
+      // Calculate normalized offset from center: -1 to 1
+      const centerX = rect.left + rect.width / 2
+      const centerY = rect.top + rect.height / 2
+      const normX = Math.max(-1, Math.min(1, (e.clientX - centerX) / (rect.width / 2)))
+      const normY = Math.max(-1, Math.min(1, (e.clientY - centerY) / (rect.height / 2)))
+
+      rawMouseX.set(normX)
+      rawMouseY.set(normY)
+    },
+    [rawMouseX, rawMouseY, shouldReduceMotion]
+  )
+
+  const handlePointerLeave = useCallback(() => {
+    rawMouseX.set(0)
+    rawMouseY.set(0)
+  }, [rawMouseX, rawMouseY])
+
   return (
     <section
       id="hero"
+      ref={containerRef}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       className="relative min-h-screen pt-28 pb-12 sm:pb-20 flex flex-col justify-between overflow-hidden bg-[#FDFDFD]"
     >
       {/* Editorial Decorative Crosshairs (Layer 30) */}
       <motion.div
         aria-hidden="true"
-        animate={{ opacity: [0.2, 0.35, 0.2] }}
+        animate={shouldReduceMotion ? undefined : { opacity: [0.15, 0.35, 0.15] }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         className="pointer-events-none absolute top-28 right-8 sm:right-16 text-[#0A0909] font-mono text-2xl select-none z-30"
       >
@@ -72,7 +184,7 @@ export const Hero: React.FC = () => {
       </motion.div>
       <motion.div
         aria-hidden="true"
-        animate={{ opacity: [0.2, 0.35, 0.2] }}
+        animate={shouldReduceMotion ? undefined : { opacity: [0.15, 0.35, 0.15] }}
         transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut', delay: 4 }}
         className="pointer-events-none absolute bottom-36 left-8 sm:left-24 text-[#0A0909] font-mono text-2xl select-none z-30"
       >
@@ -91,7 +203,12 @@ export const Hero: React.FC = () => {
           
           {/* LAYER 0 — CircleStage (Behind typography and behind portrait) */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] z-0 pointer-events-none">
-            <CircleStage className="w-[min(80vw,310px)] sm:w-[410px] md:w-[470px] lg:w-[530px] xl:w-[570px]" />
+            <CircleStage
+              x={circleX}
+              y={circleY}
+              shouldReduceMotion={shouldReduceMotion}
+              className="w-[min(80vw,310px)] sm:w-[410px] md:w-[470px] lg:w-[530px] xl:w-[570px]"
+            />
           </div>
 
           {/* LAYER 10 — Live HTML Typography (In front of circle, behind portrait) */}
@@ -99,22 +216,38 @@ export const Hero: React.FC = () => {
             variants={heroNameVariant}
             initial="hidden"
             animate="visible"
+            style={{ x: typoX, y: typoY }}
             className="relative z-10 w-full flex flex-col sm:flex-row flex-nowrap items-center sm:items-baseline justify-center whitespace-nowrap gap-x-[3vw] leading-none text-center select-none"
           >
             {/* Outlined SAI */}
-            <h1 className="font-display name-outline text-[20vw] sm:text-[clamp(4.25rem,11.5vw,12.5rem)] uppercase tracking-normal leading-[0.84] select-none">
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
+              className="font-display name-outline text-[20vw] sm:text-[clamp(4.25rem,11.5vw,12.5rem)] uppercase tracking-normal leading-[0.84] select-none"
+            >
               SAI
-            </h1>
+            </motion.h1>
 
             {/* Solid GOUTHAM */}
-            <span className="font-display text-[#0A0909] text-[20vw] sm:text-[clamp(4.25rem,11.5vw,12.5rem)] uppercase tracking-normal leading-[0.84] select-none">
+            <motion.span
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.25 }}
+              className="font-display text-[#0A0909] text-[20vw] sm:text-[clamp(4.25rem,11.5vw,12.5rem)] uppercase tracking-normal leading-[0.84] select-none"
+            >
               GOUTHAM
-            </span>
+            </motion.span>
           </motion.div>
 
           {/* LAYER 20 — PortraitRenderer (In front of circle AND typography) */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[40%] z-20 pointer-events-none">
-            <PortraitRenderer className="w-[min(80vw,310px)] sm:w-[410px] md:w-[470px] lg:w-[530px] xl:w-[570px]" />
+            <PortraitRenderer
+              x={portraitX}
+              y={portraitY}
+              shouldReduceMotion={shouldReduceMotion}
+              className="w-[min(80vw,310px)] sm:w-[410px] md:w-[470px] lg:w-[530px] xl:w-[570px]"
+            />
           </div>
         </div>
 
@@ -127,7 +260,7 @@ export const Hero: React.FC = () => {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            transition={{ delay: 0.35 }}
+            transition={{ delay: 0.4 }}
             className="flex flex-col gap-4 max-w-md"
           >
             <div className="flex items-center gap-2">
@@ -153,7 +286,7 @@ export const Hero: React.FC = () => {
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            transition={{ delay: 0.45 }}
+            transition={{ delay: 0.5 }}
             className="flex flex-col md:items-end gap-5 relative"
           >
             {/* Subtle editorial vertical accent line matching reference */}
@@ -165,7 +298,12 @@ export const Hero: React.FC = () => {
 
       {/* Bottom Editorial Hairline Rule (Layer 30) */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full mt-10 relative z-30">
-        <div className="w-full h-[1px] bg-[#E8E8E8]" />
+        <motion.div
+          initial={{ scaleX: 0 }}
+          animate={{ scaleX: 1 }}
+          transition={{ duration: 0.9, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full h-[1px] bg-[#E8E8E8] origin-left"
+        />
       </div>
     </section>
   )

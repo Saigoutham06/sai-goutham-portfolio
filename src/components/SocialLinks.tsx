@@ -57,7 +57,9 @@ export const SocialLinks: React.FC<SocialLinksProps> = ({
             href={link.href}
             target={link.href.startsWith('http') ? '_blank' : '_self'}
             rel="noopener noreferrer"
-            className="group inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-[#E8E8E8] text-xs font-medium text-[#0A0909] tracking-wide shadow-xs hover:border-[#0A0909] hover:-translate-x-1 hover:shadow-sm transition-all duration-300"
+            className={`group inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white border border-[#E8E8E8] text-xs font-medium text-[#0A0909] tracking-wide shadow-xs hover:border-[#0A0909] hover:shadow-sm transition-all duration-300 active:scale-[0.98] ${
+              direction === 'vertical' ? 'hover:-translate-x-1' : 'hover:-translate-y-0.5'
+            }`}
           >
             <span className="text-[#0A0909]/80 group-hover:text-[#0A0909] transition-colors">
               {getIcon(link.icon)}
