@@ -1,6 +1,6 @@
 import React from 'react'
 import { motion } from 'motion/react'
-import { fadeUp } from '../lib/motion'
+import { fadeUp, watermarkVariant, hairlineGrow } from '../lib/motion'
 
 interface SectionHeadingProps {
   prefix?: string
@@ -23,16 +23,20 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
 }) => {
   return (
     <div className={`relative mb-16 md:mb-24 select-none ${className}`}>
-      {/* Background Watermark */}
+      {/* Background Watermark with subtle entrance */}
       {watermark && (
-        <span
+        <motion.span
           aria-hidden="true"
-          className={`absolute -top-12 md:-top-20 left-0 text-7xl sm:text-9xl md:text-[14rem] font-black tracking-tighter watermark-text z-0 opacity-100 ${
+          variants={watermarkVariant}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: '-40px' }}
+          className={`absolute -top-12 md:-top-20 left-0 text-7xl sm:text-9xl md:text-[14rem] font-black tracking-tighter watermark-text z-0 select-none pointer-events-none ${
             isDark ? 'text-white/[0.03]' : 'text-[#0A0909]/[0.035]'
           }`}
         >
           {watermark}
-        </span>
+        </motion.span>
       )}
 
       {/* Main Section Header */}
@@ -41,7 +45,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: '-50px' }}
-        className="relative z-10 flex flex-col md:flex-row md:items-baseline justify-between gap-4 border-b pb-6 border-current/10"
+        className="relative z-10 flex flex-col md:flex-row md:items-baseline justify-between gap-4 pb-6"
       >
         <div>
           <div className="flex items-center gap-2">
@@ -63,7 +67,7 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
           </div>
           {subtitle && (
             <p
-              className={`mt-3 text-sm md:text-base max-w-xl ${
+              className={`mt-3 text-sm md:text-base max-w-xl leading-relaxed ${
                 isDark ? 'text-[#A8A8A8]' : 'text-[#707070]'
               }`}
             >
@@ -72,6 +76,15 @@ export const SectionHeading: React.FC<SectionHeadingProps> = ({
           )}
         </div>
       </motion.div>
+
+      {/* Animated Hairline Rule */}
+      <motion.div
+        variants={hairlineGrow}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-50px' }}
+        className={`w-full h-[1px] ${isDark ? 'bg-white/10' : 'bg-[#E8E8E8]'}`}
+      />
     </div>
   )
 }

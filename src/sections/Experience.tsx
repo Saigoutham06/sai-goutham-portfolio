@@ -1,10 +1,12 @@
 import React from 'react'
-import { motion } from 'motion/react'
+import { motion, useReducedMotion } from 'motion/react'
 import { SectionHeading } from '../components/SectionHeading'
 import { experienceData } from '../data/experience'
 import { fadeUp } from '../lib/motion'
 
 export const Experience: React.FC = () => {
+  const shouldReduceMotion = useReducedMotion()
+
   return (
     <section id="experience" className="py-24 md:py-36 relative bg-[#242424] text-[#FDFDFD]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -26,17 +28,19 @@ export const Experience: React.FC = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-40px' }}
-              className="py-10 md:py-14 border-b border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start group hover:bg-white/[0.02] transition-colors px-2 md:px-4 rounded-xl"
+              whileHover={shouldReduceMotion ? undefined : { x: 4 }}
+              transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+              className="py-10 md:py-14 border-b border-white/10 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start group hover:bg-white/[0.02] transition-all px-2 md:px-4 rounded-xl"
             >
               {/* Organization & Role */}
               <div className="lg:col-span-5 flex flex-col">
-                <span className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white group-hover:text-[#CEB3A6] transition-colors">
+                <span className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white group-hover:text-white transition-colors">
                   {item.organization}
                 </span>
                 <span className="text-sm md:text-base text-[#A8A8A8] mt-1 font-mono">
                   {item.role}
                 </span>
-                <span className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase border border-white/15 text-[#A8A8A8] w-max">
+                <span className="inline-block mt-3 px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase border border-white/15 text-[#A8A8A8] w-max group-hover:border-white/30 transition-colors">
                   {item.type}
                 </span>
               </div>
@@ -55,7 +59,7 @@ export const Experience: React.FC = () => {
                     {item.technologies.map((t) => (
                       <span
                         key={t}
-                        className="text-xs font-mono text-white/80 bg-white/5 px-2.5 py-1 rounded-md"
+                        className="text-xs font-mono text-white/80 bg-white/5 px-2.5 py-1 rounded-md border border-white/5 hover:border-white/20 transition-colors"
                       >
                         {t}
                       </span>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence, useScroll, useSpring } from 'motion/react'
 import { Menu, X } from 'lucide-react'
 import { AvailabilityPill } from '../components/AvailabilityPill'
 import { Button } from '../components/Button'
@@ -22,6 +22,14 @@ export const Navigation: React.FC = () => {
   const [activeSection, setActiveSection] = useState<string>('hero')
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState<boolean>(false)
   const [scrolled, setScrolled] = useState<boolean>(false)
+
+  // Subtle editorial scroll progress
+  const { scrollYProgress } = useScroll()
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 200,
+    damping: 30,
+    restDelta: 0.001,
+  })
 
   useEffect(() => {
     const handleScroll = () => {
@@ -46,7 +54,7 @@ export const Navigation: React.FC = () => {
               }
             })
           },
-          { rootMargin: '-20% 0px -70% 0px' }
+          { rootMargin: '-20% 0px -65% 0px' }
         )
         observer.observe(el)
         observers.push(observer)
@@ -61,7 +69,9 @@ export const Navigation: React.FC = () => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'bg-[#FDFDFD]/90 backdrop-blur-md border-b border-[#E8E8E8]/70 py-3 shadow-xs' : 'bg-transparent py-5'
+        scrolled
+          ? 'bg-[#FDFDFD]/90 backdrop-blur-md border-b border-[#E8E8E8]/80 py-3 shadow-xs'
+          : 'bg-transparent py-5'
       }`}
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,7 +93,7 @@ export const Navigation: React.FC = () => {
                     isActive ? 'text-[#0A0909]' : 'text-[#707070] hover:text-[#0A0909]'
                   }`}
                 >
-                  {item.label}
+                  <span>{item.label}</span>
                   {isActive && (
                     <motion.span
                       layoutId="activeNavIndicator"
@@ -110,13 +120,19 @@ export const Navigation: React.FC = () => {
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
               aria-label={isMobileMenuOpen ? 'Close Menu' : 'Open Menu'}
               aria-expanded={isMobileMenuOpen}
-              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-white border border-[#E8E8E8] text-[#0A0909]"
+              className="md:hidden flex items-center justify-center w-9 h-9 rounded-full bg-white border border-[#E8E8E8] text-[#0A0909] transition-transform active:scale-95"
             >
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </nav>
       </div>
+
+      {/* Subtle Editorial Scroll Progress Line */}
+      <motion.div
+        style={{ scaleX }}
+        className="absolute bottom-0 left-0 right-0 h-[1.5px] bg-[#0A0909]/25 origin-left pointer-events-none"
+      />
 
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
@@ -129,17 +145,20 @@ export const Navigation: React.FC = () => {
             className="md:hidden fixed inset-x-0 top-[65px] bg-[#FDFDFD] border-b border-[#E8E8E8] p-6 shadow-xl z-40"
           >
             <div className="flex flex-col gap-4">
-              {navItems.map((item) => (
-                <a
+              {navItems.map((item, idx) => (
+                <motion.a
                   key={item.id}
                   href={item.href}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`text-base font-bold tracking-tight uppercase py-2 border-b border-[#E8E8E8]/50 ${
+                  className={`text-base font-bold tracking-tight uppercase py-2 border-b border-[#E8E8E8]/50 transition-colors ${
                     activeSection === item.id ? 'text-[#0A0909]' : 'text-[#707070]'
                   }`}
                 >
                   {item.label}
-                </a>
+                </motion.a>
               ))}
               <div className="pt-2">
                 <Button

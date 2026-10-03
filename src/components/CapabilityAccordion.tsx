@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { motion, AnimatePresence } from 'motion/react'
+import { motion, AnimatePresence, useReducedMotion } from 'motion/react'
 import { ArrowUpRight, X } from 'lucide-react'
 import type { CapabilityGroup } from '../data/capabilities'
 
@@ -9,6 +9,7 @@ interface CapabilityAccordionProps {
 
 export const CapabilityAccordion: React.FC<CapabilityAccordionProps> = ({ groups }) => {
   const [activeId, setActiveId] = useState<string | null>('ai-orchestration')
+  const shouldReduceMotion = useReducedMotion()
 
   const toggleGroup = (id: string) => {
     setActiveId((prev) => (prev === id ? null : id))
@@ -48,13 +49,15 @@ export const CapabilityAccordion: React.FC<CapabilityAccordionProps> = ({ groups
 
               <div className="flex items-center gap-4">
                 <span
-                  className={`text-xs md:text-sm hidden sm:inline-block ${
+                  className={`text-xs md:text-sm hidden sm:inline-block font-mono ${
                     isOpen ? 'text-[#A8A8A8]' : 'text-[#707070]'
                   }`}
                 >
                   {group.items.length} Areas
                 </span>
-                <span
+                <motion.span
+                  animate={{ rotate: isOpen ? 90 : 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-300 ${
                     isOpen
                       ? 'border-white/20 bg-white/10 text-white'
@@ -66,21 +69,21 @@ export const CapabilityAccordion: React.FC<CapabilityAccordionProps> = ({ groups
                   ) : (
                     <ArrowUpRight className="w-4 h-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
                   )}
-                </span>
+                </motion.span>
               </div>
             </button>
 
-            {/* Accordion Content */}
+            {/* Accordion Content with smooth height transition */}
             <AnimatePresence initial={false}>
               {isOpen && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ duration: shouldReduceMotion ? 0.05 : 0.45, ease: [0.22, 1, 0.36, 1] }}
                   className="overflow-hidden bg-[#242424] text-[#FDFDFD]"
                 >
-                  <div className="px-4 md:px-8 pb-10 pt-2 border-t border-white/10">
+                  <div className="px-4 md:px-8 pb-10 pt-4 border-t border-white/10">
                     <p className="text-sm md:text-base text-[#A8A8A8] max-w-2xl mb-8 leading-relaxed">
                       {group.summary}
                     </p>
@@ -89,13 +92,13 @@ export const CapabilityAccordion: React.FC<CapabilityAccordionProps> = ({ groups
                       {group.items.map((item, idx) => (
                         <div
                           key={idx}
-                          className="flex flex-col gap-2 p-4 rounded-xl bg-white/[0.03] border border-white/5"
+                          className="flex flex-col gap-2 p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:border-white/15 transition-all duration-300"
                         >
                           <div className="flex items-baseline justify-between gap-2">
                             <span className="text-sm md:text-base font-semibold text-white">
                               {item.name}
                             </span>
-                            <span className="font-mono text-xs md:text-sm font-medium text-[#CEB3A6] whitespace-nowrap">
+                            <span className="font-mono text-xs md:text-sm font-medium text-white/90 whitespace-nowrap">
                               {item.scoreDisplay}
                             </span>
                           </div>
@@ -105,8 +108,12 @@ export const CapabilityAccordion: React.FC<CapabilityAccordionProps> = ({ groups
                             <motion.div
                               initial={{ width: 0 }}
                               animate={{ width: `${item.scorePercent}%` }}
-                              transition={{ duration: 0.8, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                              className="h-full bg-gradient-to-r from-white to-[#CEB3A6] rounded-full"
+                              transition={{
+                                duration: shouldReduceMotion ? 0.05 : 0.75,
+                                delay: shouldReduceMotion ? 0 : idx * 0.06,
+                                ease: [0.22, 1, 0.36, 1],
+                              }}
+                              className="h-full bg-white rounded-full"
                             />
                           </div>
 
